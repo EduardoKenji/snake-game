@@ -1,3 +1,3 @@
 A Snake Game
 
-![Screenshot]\(https://imgur.com/a/rifdQrA) 
+![Screenshot]\(https://imgur.com/yX4cgCk) 
