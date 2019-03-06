@@ -1,3 +1,3 @@
 A Snake Game
 
-![pictures/alive.PNG]
+![](pictures/alive.PNG)
