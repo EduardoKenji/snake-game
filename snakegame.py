@@ -35,7 +35,7 @@ map = Map(number_of_lines, number_of_columns, square_size, initial_x, initial_y,
 
 # Timed event
 game_step_timed_event = pygame.USEREVENT + 1
-game_step_delay = 125
+game_step_delay = 130
 pygame.time.set_timer(game_step_timed_event, game_step_delay)
 
 # Defined FPS and FPS clock creation
@@ -112,7 +112,7 @@ while running:
         	running = False      
         if event.type == pygame.KEYDOWN:
             valid_movement = decide_input(event.key)
-        # Update the game and score for each game step (currently 125 milliseconds)
+        # Update the game and score for each game step (currently 130 milliseconds)
         if event.type == game_step_timed_event:
             if(not map.player_is_dead and not map.is_paused):
                 map.update_player()

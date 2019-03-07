@@ -80,8 +80,16 @@ class Map:
             self.player_squares.append(self.map_squares[player.map_y][player.map_x])
 
     def randomize_snake_food_position(self):
+
         self.food_map_x = random.randint(1, len(self.map_squares[0])-2)
         self.food_map_y = random.randint(1, len(self.map_squares)-2)
+        # Check if new food randomized position is inside snake. If true, the food position needs to be randomized again.
+        need_to_randomize = True
+        while(need_to_randomize):
+            need_to_randomize = False
+            for i in range(len(self.player_squares)):
+                if(self.food_map_x == self.player_squares[i].map_x and self.food_map_y == self.player_squares[i].map_y):
+                    need_to_randomize = True
 
     def draw_snake_food(self, surface):
         self.map_squares[self.food_map_y][self.food_map_x].draw_snake_food(surface)
