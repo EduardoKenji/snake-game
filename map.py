@@ -2,15 +2,13 @@ import pygame
 import random
 
 class MapSquare:
-    # x and y are the true absolute position in the window
-    # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
-    # square_size represents the square's width and the square's height in pixels
-    def __init__(self, x, y, square_size, map_x, map_y):
-        self.x = x
-        self.y = y
-        self.map_x = map_x
-        self.map_y = map_y
-        self.square_size = square_size
+    def __init__(self, attrib_dict):
+        # x and y are the true absolute position in the window
+        # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
+        # square_size represents the square's width and the square's height in pixels
+        valid_attributes = ("x", "y", "map_x", "map_y", "square_size")
+        for key in valid_attributes:
+            self.__dict__[key] = attrib_dict[key]
 
      # Method used to draw player normal segments
     def draw_player(self, surface):
@@ -31,24 +29,26 @@ class MapSquare:
 
 # The player class tracks the snake head
 class Player:
-    # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
-    def __init__(self, map_x, map_y, direction, size):
-        self.map_x = map_x
-        self.map_y = map_y
+    def __init__(self, attrib_dict):
+        # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
         # Directions: 0 = left; 1 = down; 2 = right; 3 = up 
-        self.direction = direction
-        # Player's snake number of segments
-        self.size = size
+        # size: Player's snake number of segments
+        valid_attributes = ("map_x", "map_y", "direction", "size")
+        for key in valid_attributes:
+            self.__dict__[key] = attrib_dict[key]
 
 # Map class contain a 2D map matrix of MapSquares 
 class Map:
     # y_axis_orientation: -1 (up -> bottom) or 1 (bottom -> up)
-    def __init__(self, number_of_lines, number_of_columns, square_size, initial_x, initial_y, y_axis_orientation):
+    def __init__(self, attrib_dict):
+        # number_of_lines and number_of_columns define the 2D map matrix dimensions
         # initial_x and initial_y are the true absolute position in the window
-        self.initial_x = initial_x
-        self.initial_y = initial_y
+        # y_axis_orientation:  y_axis_orientation: -1 (up -> bottom) or 1 (bottom -> up)
         # square_size represents the square's width and the square's height in pixels
-        self.square_size = square_size
+        valid_attributes = ("number_of_lines", "number_of_columns", "square_size",
+            "initial_x", "initial_y", "y_axis_orientation")
+        for key in valid_attributes:
+            self.__dict__[key] = attrib_dict[key]
         # boolean that represents game paused state (true if game is paused, otherwise false)
         self.is_paused = False
         # Instance from player class
@@ -59,14 +59,21 @@ class Map:
         # Player's snake list of segments
         self.player_squares = []
         # Snake food position (random)
-        self.food_map_x = random.randint(1, number_of_columns-2)
-        self.food_map_y = random.randint(1, number_of_lines-2)
+        self.food_map_x = random.randint(1, self.number_of_columns-2)
+        self.food_map_y = random.randint(1, self.number_of_lines-2)
         # Building 2D map by adding 1D lines of square to a 2D matrix
         self.map_squares = []
-        for i in range(number_of_lines):
+        for i in range(self.number_of_lines):
             line_of_squares = []
-            for j in range(number_of_columns):
-                line_of_squares.append(MapSquare(initial_x+(j*square_size),initial_y+(y_axis_orientation*i*square_size), square_size, j, i))
+            for j in range(self.number_of_columns):
+                map_square_config_dict = {
+                "x": self.initial_x+(j*self.square_size),
+                "y": self.initial_y+(self.y_axis_orientation*i*self.square_size),
+                "square_size": self.square_size,
+                "map_x": j,
+                "map_y": i
+                }
+                line_of_squares.append(MapSquare(map_square_config_dict))
             self.map_squares.append(line_of_squares)
 
     # Draw map borders

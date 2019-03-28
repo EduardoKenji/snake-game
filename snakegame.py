@@ -32,10 +32,16 @@ def decide_input(map, event_key, is_valid_movement):
     # Restart a game
     if event_key == pygame.K_SPACE and map.player_is_dead:
         # Reset player
-        player_map_spawn_x = 10
-        player_map_spawn_y = 5
-        snake_initial_size = 3
-        player = Player(player_map_spawn_x, player_map_spawn_y, right_direction, snake_initial_size)
+        # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
+        # Directions: 0 = left; 1 = down; 2 = right; 3 = up 
+        # size: Player's snake number of segments
+        player_configuration_dict = {
+        'map_x': 10,
+        'map_y': 5,
+        'size': 3,
+        'direction': 2
+        }
+        player = Player(player_configuration_dict)
         map.build_player(player)
         map.player_is_dead = False
         # Reset score
@@ -44,7 +50,7 @@ def decide_input(map, event_key, is_valid_movement):
         map.is_paused = False
     return True
 
-def draw_text_on_screen(font, font_size, screen, map, fps_clock):
+def draw_text_on_screen(font, screen, map):
 
     # RGB colors
     color_black = 0, 0, 0
@@ -55,21 +61,21 @@ def draw_text_on_screen(font, font_size, screen, map, fps_clock):
     score_text = font.render("Score: "+str(map.score), 1, color_black)
     pause_text =font.render("Press SPACE to pause", 1, color_black)
     resume_text = font.render("Press SPACE to resume", 1, color_black)
-    fps_text = font.render("FPS: {:.2f}".format(fps_clock.get_fps()), 1, color_black)
+    #fps_text = font.render("FPS: {:.2f}".format(fps_clock.get_fps()), 1, color_black)
     
     # Draw texts related to FPS and score on screen
-    screen.blit(score_text, (map.initial_x, map.initial_y-(map.square_size*len(map.map_squares))-font_size/2))
-    screen.blit(fps_text, (map.initial_x, map.initial_y-(map.square_size*len(map.map_squares))-(3*font_size/2)))
+    screen.blit(score_text, (map.initial_x, map.initial_y-(map.square_size*len(map.map_squares))-font.get_height()/2))
+    #screen.blit(fps_text, (map.initial_x, map.initial_y-(map.square_size*len(map.map_squares))-(3*font.get_height()/2)))
     # Draw texts related to game over and restarting if player is dead
     if(map.player_is_dead):
-        screen.blit(game_over_text, ((map.square_size*len(map.map_squares[0]))-game_over_text.get_width(), map.initial_y-(map.square_size*len(map.map_squares))-font_size/2))
-        screen.blit(restart_text, (map.initial_x, map.initial_y+font_size))
+        screen.blit(game_over_text, ((map.square_size*len(map.map_squares[0]))-game_over_text.get_width(), map.initial_y-(map.square_size*len(map.map_squares))-font.get_height()/2))
+        screen.blit(restart_text, (map.initial_x, map.initial_y+font.get_height()))
     # Draw text:
     elif(not map.is_paused): 
-        screen.blit(pause_text, (map.initial_x, map.initial_y+font_size))
+        screen.blit(pause_text, (map.initial_x, map.initial_y+font.get_height()))
     # Draw text related to resuming the game if the player is not dead and the game is paused
     else: 
-        screen.blit(resume_text, (map.initial_x, map.initial_y+font_size))
+        screen.blit(resume_text, (map.initial_x, map.initial_y+font.get_height()))
 
 def main():
     
@@ -77,23 +83,35 @@ def main():
     screen_dimensions = width, height = 720, 720
 
     # Map configuration and creation
+
     # Border offset is the distance between the window borders and the map borders
     border_offset = 4
-    square_size = 15
-    number_of_lines = int(screen_dimensions[1]/square_size) - (2*border_offset)
-    number_of_columns = int(screen_dimensions[0]/square_size) - (2*border_offset)
-    initial_x = (square_size*border_offset)
-    initial_y = screen_dimensions[1] - (square_size*(border_offset+1))
-    # Default x and y axes start at upper left corner, after inverting y axis orientation, y axis starts at bottom and increases by going up
-    y_axis_orientation = -1
-    map = Map(number_of_lines, number_of_columns, square_size, initial_x, initial_y, y_axis_orientation)
+    # number_of_lines and number_of_columns define the 2D map matrix dimensions
+    # initial_x and initial_y are the true absolute position in the window
+    # y_axis_orientation:  y_axis_orientation: -1 (up -> bottom) or 1 (bottom -> up)
+    # square_size represents the square's width and the square's height in pixels
+    map_configuration_dict = {
+    'square_size': 15,
+    'y_axis_orientation': -1
+    }
+    map_configuration_dict['number_of_lines'] = int(screen_dimensions[1]/map_configuration_dict['square_size']) - (2*border_offset)
+    map_configuration_dict['number_of_columns'] = int(screen_dimensions[0]/map_configuration_dict['square_size']) - (2*border_offset)
+    map_configuration_dict['initial_x'] = (map_configuration_dict['square_size']*border_offset)
+    map_configuration_dict['initial_y'] = screen_dimensions[1] - (map_configuration_dict['square_size']*(border_offset+1))
+    map = Map(map_configuration_dict)
 
     # Creating player
-    player_map_spawn_x = 10
-    player_map_spawn_y = 5
-    snake_initial_size = 3
-    right_direction = 2
-    player = Player(player_map_spawn_x, player_map_spawn_y, right_direction, snake_initial_size)
+
+    # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
+    # Directions: 0 = left; 1 = down; 2 = right; 3 = up 
+    # size: Player's snake number of segments
+    player_configuration_dict = {
+    'map_x': 10,
+    'map_y': 5,
+    'size': 3,
+    'direction': 2
+    }
+    player = Player(player_configuration_dict)
 
     # Build and assign player to the map
     map.build_player(player)
@@ -142,7 +160,7 @@ def main():
                     map.update_player()
                 # Fill background with white color, quite inefficient operation as all pixels in the screen are repainted
                 screen.fill(color_white)
-                draw_text_on_screen(monospace_font, font_size, screen, map, fps_clock)
+                draw_text_on_screen(monospace_font, screen, map)
                 # Draw map walls (borders), player snake and snake food
                 map.draw_walls(screen)
                 map.draw_player(screen)
