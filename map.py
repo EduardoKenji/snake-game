@@ -69,7 +69,7 @@ class Map:
             self.map_squares[0][j].draw(surface)
             self.map_squares[len(self.map_squares)-1][j].draw(surface)
 
-    # Method to assign player to the map
+    # Method build and assign player to the map
     def build_player(self, player):
         self.player = player
         # If player starts pointing to the right
