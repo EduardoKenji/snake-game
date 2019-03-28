@@ -2,6 +2,9 @@ import pygame
 import random
 
 class MapSquare:
+    # x and y are the true absolute position in the window
+    # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
+    # square_size represents the square's width and the square's height in pixels
     def __init__(self, x, y, square_size, map_x, map_y):
         self.x = x
         self.y = y
@@ -28,28 +31,34 @@ class MapSquare:
 
 # The player class tracks the snake head
 class Player:
+    # map_x and map_y are abstract coordinates to represent the player's snake or food inside the 2D map matrix
     def __init__(self, map_x, map_y, direction, size):
         self.map_x = map_x
         self.map_y = map_y
         # Directions: 0 = left; 1 = down; 2 = right; 3 = up 
         self.direction = direction
+        # Player's snake number of segments
         self.size = size
 
-# Map class contain a 2D matrix of MapSquares 
+# Map class contain a 2D map matrix of MapSquares 
 class Map:
     # y_axis_orientation: -1 (up -> bottom) or 1 (bottom -> up)
     def __init__(self, number_of_lines, number_of_columns, square_size, initial_x, initial_y, y_axis_orientation):
-        
+        # initial_x and initial_y are the true absolute position in the window
         self.initial_x = initial_x
         self.initial_y = initial_y
+        # square_size represents the square's width and the square's height in pixels
         self.square_size = square_size
+        # boolean that represents game paused state (true if game is paused, otherwise false)
         self.is_paused = False
         # Instance from player class
+        # Player score
         self.score = 0
         self.player = None
         self.player_is_dead = False
+        # Player's snake list of segments
         self.player_squares = []
-        # Snake food
+        # Snake food position (random)
         self.food_map_x = random.randint(1, number_of_columns-2)
         self.food_map_y = random.randint(1, number_of_lines-2)
         # Building 2D map by adding 1D lines of square to a 2D matrix
@@ -79,11 +88,12 @@ class Map:
                 self.player_squares.append(self.map_squares[player.map_y][player.map_x-(player.size-1-i)])
             self.player_squares.append(self.map_squares[player.map_y][player.map_x])
 
+    # Randomize food position inside the map, it is called when the game starts and when the player's snake collides with the food square
     def randomize_snake_food_position(self):
 
         self.food_map_x = random.randint(1, len(self.map_squares[0])-2)
         self.food_map_y = random.randint(1, len(self.map_squares)-2)
-        # Check if new food randomized position is inside snake. If true, the food position needs to be randomized again.
+        # Check if the new food randomized position is inside snake. If true, the food position needs to be randomized again.
         need_to_randomize = True
         while(need_to_randomize):
             need_to_randomize = False
@@ -91,6 +101,7 @@ class Map:
                 if(self.food_map_x == self.player_squares[i].map_x and self.food_map_y == self.player_squares[i].map_y):
                     need_to_randomize = True
 
+    # Draw food as a red square in the map
     def draw_snake_food(self, surface):
         self.map_squares[self.food_map_y][self.food_map_x].draw_snake_food(surface)
 
@@ -115,7 +126,7 @@ class Map:
                 return True    
         return False
 
-    # Update player position
+    # Update player position ahd check if the player's snake collided with food or if a game should end
     def update_player(self):
         x_offset = 0
         y_offset = 0
@@ -129,9 +140,9 @@ class Map:
         if(self.player.direction == 1):
             y_offset=-1
         
-        # Check if snake got food
+        # Check if snake got food (true if snake head is in the same position as the food)
         snake_got_food = self.food_player_collision_check(self.player.map_x+x_offset, self.player.map_y+y_offset)
-        # Check for game over, true is any condition for game over is met
+        # Check for game over, true if any condition for game over is met
         game_over = self.game_over_collision_check(self.player.map_x+x_offset, self.player.map_y+y_offset)
         # The snake is a list of map squares of variable size, the snake is walking through the map by inserting
         # the map square ahead and removing the map square in the tail. If the snake got food, we can extend the snake
@@ -139,13 +150,13 @@ class Map:
         if(not snake_got_food):
             self.player_squares.pop(0)
         else: 
-            # If snake got food, score is incremented by 1
+            # If snake head collided with the food, the score is incremented by 1
             self.score += 1
         self.player_squares.append(self.map_squares[self.player.map_y+y_offset][self.player.map_x+x_offset])
         self.player.map_y += y_offset
         self.player.map_x += x_offset
 
-    # Draw player and its segments (head is blue)
+    # Draw player's snake and its segments (currently, the player's snake head is the blue square)
     def draw_player(self, surface):
         for i in range(len(self.player_squares)):
             if(i == len(self.player_squares) - 1): self.player_squares[i].draw_player_head(surface)
