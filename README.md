@@ -5,5 +5,4 @@ Objective: The player is a snake and it must collect the red squares to grow lon
 
 Arrow keys to move and space bar to pause/resume/restart the game.
 
-![](pictures/alive.PNG)
-![](pictures/game-over.PNG)
+![](pictures/snake_game.PNG)
